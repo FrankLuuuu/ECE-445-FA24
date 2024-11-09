@@ -32,16 +32,22 @@ we had a meeting with oscar to find some ideas on how to calculate the power fac
 we help a zoom meeting with an expert on pcb that oscar employs to go over some questions we had about the pcb design including the ground and the voltage switching on the voltage board
 
 # 10/24/2024 - PCB Training
-we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques
+we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun
 
 # 11/1/2024 - SMD Soldering Training
-
+met with oscar again for him to teach us how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
 
 # 11/2/2024 - Arduino Soldering
+did more arduino soldering and finished the soldering of the current board
 
 # 11/3/2024 - Finish Soldering
+finished soldering the arduino board but realized that we are missing a component that didnt arrive yet, decided to get a component lm317 from the self service center and eceb and solder it the next day
 
 # 11/4/2024 - Voltage Testing and Redesign
+finished soldering the arduino and started testing the voltage circuit, the voltage circuit wasnt stepping down the voltage correctly, we think the power source and the signal generator is wrong, we also deciede to output the current value directly from the arduino as an analog 3-phase signal, but the arduino doesn't output analog signals, so we decided to use dac boards and a multiplexer to output the analog signals from the arduino 
 
 # 11/8/2024 - More Testing
+started to test the arduino board, the led isnt lighting up when i connect it to power supply, i might have shorted the arduino board by touching two of the pads on the pcb board, did research on how to test the board for connections, did voltage reading tests to debug the board, decided to first write code for the pre-built arduino board and debug using that and then transfer the code on our own arduino board
+
+# 11/9/2024 - Testing and Start Programming
 
