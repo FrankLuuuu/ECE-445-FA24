@@ -11,7 +11,7 @@
 * [11/2/2024 - Arduino Soldering](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1122024---arduino-soldering)
 * [11/3/2024 - Finish Soldering](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1132024---finish-soldering)
 * [11/4/2024 - Voltage Testing and PCB Design](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1142024---voltage-testing-and-redesign)
-* [11/8/2024 - More Testing]
+* [11/8/2024 - More Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1182024---more-testing)
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
@@ -23,9 +23,10 @@ went to the poets lab for the first time and did the in person high voltage trai
 we held a zoom meeting with oscar for him to explain each component of the voltage circuit to us
 
 # 10/9/2024 - DIY Arduino PCB
-we learned after our design review that we need to make our own arduino board instead of using an existing one, researched a lot about arduino designs, did a lot of pcb design on all three boards, 
+we learned after our design review that we need to make our own arduino board instead of using an existing one, researched a lot about arduino designs, did a lot of pcb design on all three boards, decided to do three separate boards instead of a big board due to spacing issues
 
 # 10/10/2024 - Power Factor Discussion
+
 
 # 10/15/2024 - PCB Meeting with Victor
 
