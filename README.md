@@ -51,4 +51,4 @@ finished soldering the arduino and started testing the voltage circuit, the volt
 started to test the arduino board, the led isnt lighting up when i connect it to power supply, i might have shorted the arduino board by touching two of the pads on the pcb board, did research on how to test the board for connections, did voltage reading tests to debug the board, decided to first write code for the pre-built arduino board and debug using that and then transfer the code on our own arduino board
 
 # 11/9/2024 - Testing and Start Programming
-
+started testing on the current board, started to code for the arduino
