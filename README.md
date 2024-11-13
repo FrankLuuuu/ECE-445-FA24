@@ -13,7 +13,7 @@
 * [11/4/2024 - Voltage Testing and PCB Design](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1142024---voltage-testing-and-redesign)
 * [11/8/2024 - More Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1182024---more-testing)
 * [11/9/2024 - Testing and Start Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1192024---testing-and-start-programming)
-* [11/11/2024 - Continue Programming]()
+* [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
