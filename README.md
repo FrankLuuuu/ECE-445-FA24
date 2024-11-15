@@ -14,6 +14,7 @@
 * [11/8/2024 - More Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1182024---more-testing)
 * [11/9/2024 - Testing and Start Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1192024---testing-and-start-programming)
 * [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
+* [11/15/2024 - Testing Code]()
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
@@ -56,4 +57,7 @@ started testing on the current board, started to code for the arduino
 
 # 11/11/2024 - Continue Programming
 finished arduino code, current and voltage boards seem to partially work, with some issues
+
+# 11/15/2024 - Testing Code
+finished code for both server and client, wrote a separate test script for modular testing of the server, 
 
