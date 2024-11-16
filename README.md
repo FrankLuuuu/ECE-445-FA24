@@ -59,5 +59,5 @@ started testing on the current board, started to code for the arduino
 finished arduino code, current and voltage boards seem to partially work, with some issues
 
 # 11/15/2024 - Testing Code
-finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, 
+finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, started testing the arduino code, found compiler errors saying modbus tcp isn't compatible with arduino uno, will make changes to the code
 
