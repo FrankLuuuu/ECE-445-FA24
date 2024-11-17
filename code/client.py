@@ -1,44 +1,49 @@
-from pymodbus.client.sync import ModbusTcpClient
+# from pymodbus.client.sync import ModbusTcpClient
+import socket
 import time
+import struct
 
-# Arduino IP address and port (default Modbus TCP port is 502)
-ARDUINO_IP = '192.168.1.177'
+# Arduino's IP address and port
+ARDUINO_IP = '192.168.1.2'  # Set this to the IP of your Arduino Uno
 MODBUS_PORT = 502
 
-# Connect to the Modbus server on the Arduino
-client = ModbusTcpClient(ARDUINO_IP, port=MODBUS_PORT)
+def read_power_values():
+    try:
+        # Create a TCP socket connection
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        client.connect((ARDUINO_IP, MODBUS_PORT))
 
-if client.connect():
-    print("Connected to Arduino Modbus Server")
-else:
-    print("Failed to connect to Arduino Modbus Server")
-    exit()
+        # Construct a basic Modbus request (Transaction ID, Protocol ID, Length, Unit ID, Function Code, etc.)
+        # This is a simple read holding registers request to match the Arduino's basic implementation
+        request = struct.pack('>HHHBBHH', 1, 0, 6, 1, 0x03, 0, 3)  # Read 3 registers starting at address 0
 
-try:
-    while True:
-        # Read holding registers (3 registers in this example)
-        response = client.read_holding_registers(0, 3)
+        # Send the request to the Arduino
+        client.send(request)
 
-        if response.isError():
-            print("Error reading from Modbus server")
-        else:
-            # Extract data from response
-            real_power = response.registers[0]
-            apparent_power = response.registers[1]
-            reactive_power = response.registers[2]
+        # Receive the response from the Arduino
+        response = client.recv(256)  # Read up to 256 bytes (should be more than enough for our example)
 
-            # Display the data
+        # Close the client connection
+        client.close()
+
+        # Parse the response
+        if len(response) >= 11:  # Ensure we have enough bytes for the response
+            transaction_id, protocol_id, length, unit_id, function_code, byte_count = struct.unpack('>HHHBBB', response[:9])
+            real_power = struct.unpack('>H', response[9:11])[0]
+            apparent_power = struct.unpack('>H', response[11:13])[0]
+            reactive_power = struct.unpack('>H', response[13:15])[0]
+
+            # Display the values
             print(f"Real Power: {real_power} W")
             print(f"Apparent Power: {apparent_power} VA")
             print(f"Reactive Power: {reactive_power} VAR")
-            print("-" * 30)
+        else:
+            print("Invalid response length")
 
-        # Wait before the next read
-        time.sleep(1)
+    except Exception as e:
+        print(f"Error: {e}")
 
-except KeyboardInterrupt:
-    print("Program interrupted by user")
-
-finally:
-    client.close()
-    print("Modbus client disconnected")
+# Run the read loop
+while True:
+    read_power_values()
+    time.sleep(1)  # Poll every second
