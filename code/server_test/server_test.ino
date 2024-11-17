@@ -6,7 +6,7 @@
 const float voltageStepUpRatio = 20.0; // Adjust this based on your step-down ratio for voltage
 const float currentStepUpRatio = 10.0; // Adjust this based on your step-down ratio for current
 
-// Ethernet and Modbus setup
+// Ethernet setup
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAF, 0x07, 0x68 };
 IPAddress ip(192, 168, 1, 2); // Set your IP address
 
