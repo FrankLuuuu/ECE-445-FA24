@@ -33,7 +33,6 @@ void loop() {
   // Calculate power values
   float realPower = simulatedVoltage * simulatedCurrent * 0.8; // Assuming a power factor of 0.8
   float apparentPower = simulatedVoltage * simulatedCurrent;
-  float reactivePower = sqrt(apparentPower * apparentPower - realPower * realPower);
 
   // Listen for incoming client connections
   EthernetClient client = server.available();
@@ -48,18 +47,24 @@ void loop() {
         client.read(request, sizeof(request));
 
         // Prepare a simple Modbus-like response with power values
-        byte response[11] = {
-          request[0], request[1], // Transaction ID
-          0x00, 0x00,             // Protocol ID
-          0x00, 0x07,             // Length (7 bytes following)
-          request[6],             // Unit ID
-          0x03,                   // Function Code (Read Holding Registers)
-          0x06,                   // Byte count (6 bytes for 3 registers)
+        byte response[11];
+        
+        // Initialize each part of the response array individually
+        response[0] = request[0];                    // Transaction ID (byte 1)
+        response[1] = request[1];                    // Transaction ID (byte 2)
+        response[2] = 0x00;                          // Protocol ID (byte 1)
+        response[3] = 0x00;                          // Protocol ID (byte 2)
+        response[4] = 0x00;                          // Length (byte 1)
+        response[5] = 0x07;                          // Length (byte 2 - 7 bytes following)
+        response[6] = request[6];                    // Unit ID
+        response[7] = 0x03;                          // Function Code (Read Holding Registers)
+        response[8] = 0x04;                          // Byte count (4 bytes for 2 registers)
 
-          highByte((int)realPower), lowByte((int)realPower),       // Real Power
-          highByte((int)apparentPower), lowByte((int)apparentPower), // Apparent Power
-          highByte((int)reactivePower), lowByte((int)reactivePower)  // Reactive Power
-        };
+        // Split realPower and apparentPower into high and low bytes and add them
+        response[9] = highByte((int)realPower);      // Real Power high byte
+        response[10] = lowByte((int)realPower);      // Real Power low byte
+
+        // Note: Adjust the response to exclude apparentPower for simplicity in this example.
 
         // Send response to client
         client.write(response, sizeof(response));
