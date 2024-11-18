@@ -15,7 +15,7 @@
 * [11/9/2024 - Testing and Start Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1192024---testing-and-start-programming)
 * [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
-* [11/17/2024 - Finished Initial Code Testing]()
+* [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
