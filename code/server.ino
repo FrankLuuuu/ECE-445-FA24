@@ -1,72 +1,93 @@
 #include <SPI.h>
 #include <Ethernet.h>
-#include <ModbusTCP.h>
-#include <EmonLib.h> // Include EmonLib for power calculations
 
-// Define pins for voltage and current sensors
-const int voltagePin = A0;
-const int currentPin = A1;
-
-// Step-up ratios for current and voltage (based on your step-down circuits)
-const float voltageStepUpRatio = 20.0; // Adjust based on your step-down ratio for voltage
-const float currentStepUpRatio = 10.0; // Adjust based on your step-down ratio for current
-
-// Calibration values for your sensors
-float voltageCalibration = 234.26; // Adjust based on your voltage sensor and calibration
-float currentCalibration = 111.1;  // Adjust based on your current sensor and calibration
-
-// Create an instance of the EnergyMonitor class
-EnergyMonitor emon1;
-
-// Ethernet and Modbus setup
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAF, 0x07, 0x68 };
-IPAddress ip(192, 168, 1, 177); // Set your IP address
-ModbusTCPServer modbusTCP;
+IPAddress ip(192, 168, 1, 2);
+EthernetServer server(502);
+
+const int voltagePin = A0; // Analog pin for voltage sensor
+const int currentPin = A1; // Analog pin for current sensor
+
+const float voltageStepUpRatio = 20.0;  // Voltage step-up ratio
+const float currentStepUpRatio = 10.0;  // Current step-up ratio
+const float voltageCalibration = 234.26; // Adjust this for voltage calibration
+const float currentCalibration = 111.1;  // Adjust this for current calibration
 
 void setup() {
   Serial.begin(9600);
-
-  // Initialize the Ethernet and Modbus server
   Ethernet.begin(mac, ip);
-  modbusTCP.begin();
-  modbusTCP.configureHoldingRegisters(0, 3); // Set up 3 registers for real, apparent, and reactive power
-
-  // Initialize EmonLib with calibration values
-  emon1.voltage(voltagePin, voltageCalibration, 1.7); // Calibration for voltage sensor
-  emon1.current(currentPin, currentCalibration);      // Calibration for current sensor
+  server.begin();
+  
+  Serial.print("Ethernet server started at IP address: ");
+  Serial.println(Ethernet.localIP());
 }
 
 void loop() {
-  // Measure voltage and current with EmonLib
-  emon1.calcVI(20, 2000);  // 20 cycles at 50Hz or adjust for your region
+  float voltageSum = 0;
+  float currentSum = 0;
+  float powerSum = 0;
+  int numSamples = 200; // Number of samples per calculation
+  float voltageOffset = 512; // Offset for AC signal (2.5V on a 10-bit ADC)
+  float currentOffset = 512; // Offset for AC signal (2.5V on a 10-bit ADC)
 
-  // Scale up the measured values based on the step-up ratios
-  float actualVoltage = emon1.Vrms * voltageStepUpRatio;
-  float actualCurrent = emon1.Irms * currentStepUpRatio;
+  // Sampling loop for AC voltage and current
+  for (int i = 0; i < numSamples; i++) {
+    // Read and normalize voltage and current
+    float voltageSample = analogRead(voltagePin) - voltageOffset;
+    float currentSample = analogRead(currentPin) - currentOffset;
 
-  // Calculate power values
-  float realPower = actualVoltage * actualCurrent * emon1.powerFactor;
-  float apparentPower = actualVoltage * actualCurrent;
+    // Convert to actual voltage/current by scaling
+    float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration / voltageStepUpRatio;
+    float current = currentSample * (5.0 / 1023.0) * currentCalibration / currentStepUpRatio;
+
+    // Accumulate RMS values and instantaneous power
+    voltageSum += voltage * voltage;
+    currentSum += current * current;
+    powerSum += voltage * current;
+
+    delayMicroseconds(200); // Sampling delay (adjust based on your requirements)
+  }
+
+  // Calculate RMS values and power
+  float voltageRMS = sqrt(voltageSum / numSamples);
+  float currentRMS = sqrt(currentSum / numSamples);
+  float realPower = powerSum / numSamples;
+  float apparentPower = voltageRMS * currentRMS;
   float reactivePower = sqrt(apparentPower * apparentPower - realPower * realPower);
 
-  // Output to Serial for debugging
-  Serial.print("Real Power: ");
-  Serial.print(realPower);
-  Serial.println(" W");
+  // Ethernet communication
+  EthernetClient client = server.available();
+  if (client) {
+    Serial.println("New client connected");
+    while (client.connected()) {
+      if (client.available()) {
+        byte request[12];
+        client.read(request, sizeof(request));
 
-  Serial.print("Apparent Power: ");
-  Serial.print(apparentPower);
-  Serial.println(" VA");
+        byte response[15];
+        response[0] = request[0];
+        response[1] = request[1];
+        response[2] = 0x00;
+        response[3] = 0x00;
+        response[4] = 0x00;
+        response[5] = 0x09;
+        response[6] = request[6];
+        response[7] = 0x03;
+        response[8] = 0x06;
 
-  Serial.print("Reactive Power: ");
-  Serial.print(reactivePower);
-  Serial.println(" VAR");
+        response[9] = highByte((int)realPower);      // Real Power high byte
+        response[10] = lowByte((int)realPower);      // Real Power low byte
+        response[11] = highByte((int)apparentPower); // Apparent Power high byte
+        response[12] = lowByte((int)apparentPower);  // Apparent Power low byte
+        response[13] = highByte((int)reactivePower); // Reactive Power high byte
+        response[14] = lowByte((int)reactivePower);  // Reactive Power low byte
 
-  // Write power values to Modbus holding registers
-  modbusTCP.holdingRegisterWrite(0, (int)realPower);
-  modbusTCP.holdingRegisterWrite(1, (int)apparentPower);
-  modbusTCP.holdingRegisterWrite(2, (int)reactivePower);
+        client.write(response, sizeof(response));
+        client.stop();
+      }
+    }
+    Serial.println("Client disconnected");
+  }
 
-  // Delay for the next measurement
   delay(1000);
 }
