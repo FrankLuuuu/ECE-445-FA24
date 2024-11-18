@@ -15,6 +15,7 @@
 * [11/9/2024 - Testing and Start Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1192024---testing-and-start-programming)
 * [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
+* [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
@@ -60,4 +61,7 @@ finished arduino code, current and voltage boards seem to partially work, with s
 
 # 11/15/2024 - Testing Code
 finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, started testing the arduino code, found compiler errors saying modbus tcp isn't compatible with arduino uno, will make changes to the code
+
+# 11/17/2024 - Finished Initial Code Testing
+revised the server and client code to be compatible with arduino uno by using the arduino ethernet library to simulate the modbus protocol, server now listens to requests for the data and responds with the calculated data, the client side sends the requests in a loop and outputs the calculated power data
 
