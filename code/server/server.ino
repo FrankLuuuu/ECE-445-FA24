@@ -8,10 +8,14 @@ EthernetServer server(502);
 const int voltagePin = A0; // Analog pin for voltage sensor
 const int currentPin = A1; // Analog pin for current sensor
 
-const float voltageStepUpRatio = 20.0;  // Voltage step-up ratio
-const float currentStepUpRatio = 10.0;  // Current step-up ratio
-const float voltageCalibration = 234.26; // Adjust this for voltage calibration
-const float currentCalibration = 111.1;  // Adjust this for current calibration
+const float voltageStepUpRatio = 100.0;  // Voltage step-up ratio       // input = 120V
+const float currentStepUpRatio = 101.52284;  // Current step-up ratio   // input = 150A
+const float voltageCalibration = 1.018;//120; // Adjust this for voltage calibration
+const float currentCalibration = 1.012;//150;  // Adjust this for current calibration
+
+// Updated offsets based on actual DC offsets of the signals
+const float voltageOffset = 409.2; // ADC value for 2V DC offset
+const float currentOffset = 503.4; // ADC value for 2.462V DC offset
 
 void setup() {
   Serial.begin(9600);
@@ -27,8 +31,23 @@ void loop() {
   float currentSum = 0;
   float powerSum = 0;
   int numSamples = 200; // Number of samples per calculation
-  float voltageOffset = 512; // Offset for AC signal (2.5V on a 10-bit ADC)
-  float currentOffset = 512; // Offset for AC signal (2.5V on a 10-bit ADC)
+
+  int rawVoltageReading = analogRead(voltagePin);
+  int rawCurrentReading = analogRead(currentPin);
+
+  // Print raw ADC readings to Serial Monitor
+  Serial.print("Raw Voltage Reading: ");
+  Serial.print(rawVoltageReading);
+  Serial.print(" | Raw Current Reading: ");
+  Serial.println(rawCurrentReading);
+
+
+  // if (voltageSample < 0 || currentSample < 0) {
+  //   Serial.println("\n\n------------------------------------------------------------\n");
+  //   Serial.println("input values too low!");
+  //   Serial.println("\n------------------------------------------------------------\n\n");
+  //   break;
+  // }
 
   // Sampling loop for AC voltage and current
   for (int i = 0; i < numSamples; i++) {
@@ -37,15 +56,15 @@ void loop() {
     float currentSample = analogRead(currentPin) - currentOffset;
 
     // Convert to actual voltage/current by scaling
-    float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration / voltageStepUpRatio;
-    float current = currentSample * (5.0 / 1023.0) * currentCalibration / currentStepUpRatio;
+    float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration * voltageStepUpRatio;
+    float current = currentSample * (5.0 / 1023.0) * currentCalibration * currentStepUpRatio;
 
     // Accumulate RMS values and instantaneous power
     voltageSum += voltage * voltage;
     currentSum += current * current;
     powerSum += voltage * current;
 
-    delayMicroseconds(200); // Sampling delay (adjust based on your requirements)
+    delayMicroseconds(100); // Sampling delay (adjust based on your requirements)
   }
 
   // Calculate RMS values and power
@@ -54,6 +73,32 @@ void loop() {
   float realPower = powerSum / numSamples;
   float apparentPower = voltageRMS * currentRMS;
   float reactivePower = sqrt(apparentPower * apparentPower - realPower * realPower);
+  float powerFactor = realPower / apparentPower;
+
+  // Print calculated values to Serial Monitor
+  Serial.print("Voltage RMS: ");
+  Serial.print(voltageRMS);
+  Serial.println(" V");
+
+  Serial.print("Current RMS: ");
+  Serial.print(currentRMS);
+  Serial.println(" A");
+
+  Serial.print("Real Power: ");
+  Serial.print(realPower);
+  Serial.println(" W");
+
+  Serial.print("Apparent Power: ");
+  Serial.print(apparentPower);
+  Serial.println(" VA");
+
+  Serial.print("Reactive Power: ");
+  Serial.print(reactivePower);
+  Serial.println(" VAR");
+
+  Serial.print("Power Factor: ");
+  Serial.print(powerFactor);
+  Serial.println("");
 
   // Ethernet communication
   EthernetClient client = server.available();
