@@ -16,7 +16,7 @@
 * [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
 * [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
-* [11/18/2024 - Finished Demo Testing]()
+* [11/18/2024 - Finished Demo Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11182024---finished-demo-testing)
 
 # 9/8/2024 - First Meeting with Oscar
 first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
@@ -67,4 +67,4 @@ finished code for both server and client, wrote a separate test script for modul
 revised the server and client code to be compatible with arduino uno by using the arduino ethernet library to simulate the modbus protocol, server now listens to requests for the data and responds with the calculated data, the client side sends the requests in a loop and outputs the calculated power data
 
 # 11/18/2024 - Finished Demo Testing
-adjusted the server code to read ac current and voltage from the arduino pins, 
+adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value 
