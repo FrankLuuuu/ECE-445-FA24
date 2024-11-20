@@ -1,5 +1,9 @@
+#include <Wire.h>
+#include <Adafruit_MCP4725.h>
 #include <SPI.h>
 #include <Ethernet.h>
+
+Adafruit_MCP4725 dac;
 
 byte mac[] = { 0xA8, 0x61, 0x0A, 0xAF, 0x07, 0x68 };
 IPAddress ip(192, 168, 1, 2);
@@ -8,66 +12,61 @@ EthernetServer server(502);
 const int voltagePin = A0; // Analog pin for voltage sensor
 const int currentPin = A1; // Analog pin for current sensor
 
-const float voltageStepUpRatio = 100.0;  // Voltage step-up ratio       // input = 120V
-const float currentStepUpRatio = 101.52284;  // Current step-up ratio   // input = 150A
-const float voltageCalibration = 1.0;//120; // Adjust this for voltage calibration
-const float currentCalibration = 1.0;//150;  // Adjust this for current calibration
+const float voltageStepUpRatio = 100.0;  
+const float currentStepUpRatio = 101.52284;  
+const float voltageCalibration = 1.0;
+const float currentCalibration = 1.0;
+const float voltageOffset = 409.2; 
+const float currentOffset = 503.4; 
 
-// Updated offsets based on actual DC offsets of the signals
-const float voltageOffset = 409.2; // ADC value for 2V DC offset
-const float currentOffset = 503.4; // ADC value for 2.462V DC offset
+#define TCA9548A_ADDRESS 0x70
+
+void selectTCA9548AChannel(uint8_t channel) {
+  if (channel > 7) return;
+  Wire.beginTransmission(TCA9548A_ADDRESS);
+  Wire.write(1 << channel);  
+  Wire.endTransmission();
+}
 
 void setup() {
   Serial.begin(9600);
   Ethernet.begin(mac, ip);
   server.begin();
   
+  Wire.begin();               
   Serial.print("Ethernet server started at IP address: ");
   Serial.println(Ethernet.localIP());
+  
+  // Initialize each DAC by selecting the channel and calling dac.begin
+  for (int channel = 0; channel < 3; channel++) {
+    selectTCA9548AChannel(channel);  
+    dac.begin(0x60);                 
+  }
 }
 
 void loop() {
   float voltageSum = 0;
   float currentSum = 0;
   float powerSum = 0;
-  int numSamples = 200; // Number of samples per calculation
+  int numSamples = 200;
 
   int rawVoltageReading = analogRead(voltagePin);
   int rawCurrentReading = analogRead(currentPin);
 
-  // Print raw ADC readings to Serial Monitor
-  Serial.print("Raw Voltage Reading: ");
-  Serial.print(rawVoltageReading);
-  Serial.print(" | Raw Current Reading: ");
-  Serial.println(rawCurrentReading);
-
-
-  // if (voltageSample < 0 || currentSample < 0) {
-  //   Serial.println("\n\n------------------------------------------------------------\n");
-  //   Serial.println("input values too low!");
-  //   Serial.println("\n------------------------------------------------------------\n\n");
-  //   break;
-  // }
-
-  // Sampling loop for AC voltage and current
   for (int i = 0; i < numSamples; i++) {
-    // Read and normalize voltage and current
     float voltageSample = analogRead(voltagePin) - voltageOffset;
     float currentSample = analogRead(currentPin) - currentOffset;
 
-    // Convert to actual voltage/current by scaling
     float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration * voltageStepUpRatio;
     float current = currentSample * (5.0 / 1023.0) * currentCalibration * currentStepUpRatio;
 
-    // Accumulate RMS values and instantaneous power
     voltageSum += voltage * voltage;
     currentSum += current * current;
     powerSum += voltage * current;
 
-    delayMicroseconds(100); // Sampling delay (adjust based on your requirements)
+    delayMicroseconds(100);
   }
 
-  // Calculate RMS values and power
   float voltageRMS = sqrt(voltageSum / numSamples);
   float currentRMS = sqrt(currentSum / numSamples);
   float realPower = powerSum / numSamples;
@@ -75,7 +74,6 @@ void loop() {
   float reactivePower = sqrt(apparentPower * apparentPower - realPower * realPower);
   float powerFactor = realPower / apparentPower;
 
-  // Print calculated values to Serial Monitor
   Serial.print("Voltage RMS: ");
   Serial.print(voltageRMS);
   Serial.println(" V");
@@ -134,5 +132,24 @@ void loop() {
     Serial.println("Client disconnected");
   }
 
+  // Add DAC output functionality
+  outputToDACs(currentRMS);
+
   delay(1000);
+}
+
+// Function to output voltage to three DACs via the TCA9548A multiplexer
+void outputToDACs(float currentRMS) {
+  // Calculate DAC output value based on currentRMS
+  uint16_t dacValue = (currentRMS / 50.0) * 4095 / 5.0;  // Scale for 12-bit DAC (0–4095) with 5V reference
+
+  // Output the same voltage to each DAC through the TCA9548A
+  for (int channel = 0; channel < 3; channel++) {
+    selectTCA9548AChannel(channel);  // Select each channel
+    dac.setVoltage(dacValue, false); // Set DAC output without EEPROM save
+    Serial.print("DAC Channel ");
+    Serial.print(channel);
+    Serial.print(" Output: ");
+    Serial.println((float)dacValue * 5.0 / 4095.0, 2); // Print approximate output voltage
+  }
 }
