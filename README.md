@@ -9,11 +9,9 @@
 * [10/24/2024 - PCB Training](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#10242024---pcb-training)
 * [11/4/2024 - Voltage Testing and PCB Design](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1142024---voltage-testing-and-redesign)
 * [11/8/2024 - More Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1182024---more-testing)
-* [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
 * [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
 * [11/18/2024 - Finished Demo Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11182024---finished-demo-testing)
-* [11/20/2024 - Test DACs and Multiplexer](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11202024---test-dacs-and-multiplexer)
   
 
 
@@ -99,18 +97,21 @@ Given the complications with the custom Arduino board, I decided to shift the te
 
 
 
-# 11/11/2024 - Continue Programming
-started testing on the current board, finished arduino code, current and voltage boards seem to partially work, with some issues
-
-
-
 # 11/15/2024 - Testing Code
-finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, started testing the arduino code, found compiler errors saying modbus tcp isn't compatible with arduino uno, will make changes to the code
+Today, I completed the Arduino code for both the server and client components of the Power Meter system. To ensure that each part of the system functions correctly, I also wrote a separate test script for modular testing. The script allows us to simulate arbitrary values for current, voltage, and power factor, providing a way to validate the server’s behavior with a variety of input scenarios.
+
+When I began testing the code on the Arduino, I encountered some compiler errors related to the Modbus TCP library. The error indicated that Modbus TCP is not compatible with the Arduino Uno, which uses limited memory and processing power compared to more advanced Arduino models. This compatibility issue is something that will need to be addressed before proceeding further.
+
+To resolve this, I’ll need to modify the code, either by finding a compatible library for the Arduino Uno or by considering an alternative approach to implementing the Modbus TCP communication protocol. These changes will ensure that the system can function as intended with the available hardware.
 
 
 
 # 11/17/2024 - Finished Initial Code Testing
-revised the server and client code to be compatible with arduino uno by using the arduino ethernet library to simulate the modbus protocol, server now listens to requests for the data and responds with the calculated data, the client side sends the requests in a loop and outputs the calculated power data
+I revised the server and client code to make it compatible with the Arduino Uno. Since the Modbus TCP library was not compatible with the Arduino Uno due to memory limitations, I switched to using the Arduino Ethernet library to simulate the Modbus protocol. This adjustment allowed us to implement basic communication without requiring additional hardware or modifications to the existing Arduino Uno setup.
+
+With the new configuration, the server is now able to listen for incoming requests and respond with the calculated power data, including the current, voltage, and power factor values. On the client side, the code sends requests in a continuous loop to the server, which outputs the calculated power data in response.
+
+The communication between the server and client is now functioning as expected, and the system is able to simulate the power calculations and transmit the data correctly to a tolerance of around 1%. This marks a significant step in verifying the system's functionality before moving on to integration with the other systems.
 
 
 
