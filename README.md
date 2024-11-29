@@ -17,10 +17,14 @@
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
 * [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
 * [11/18/2024 - Finished Demo Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11182024---finished-demo-testing)
-* [11/20/2024 - Test DACs and Multiplexer]()
+* [11/20/2024 - Test DACs and Multiplexer](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11202024---test-dacs-and-multiplexer)
+  
 
 # 9/8/2024 - First Meeting with Oscar
-first meeting, introduction to the project on a whiteboard, gave us the tolerance level, left the main design component to us, introduced the powernode and how the communication protocal will work, gave us the voltage board, answered any questions we had
+Today marked our first meeting with Oscar, the CEO of PowerBox Technology and our mentor for this project. Oscar introduced us to the Power Meter project, explaining its critical role in ensuring uninterrupted power for industrial factories by providing high-precision real-time power data to the PowerNode. He outlined the core tolerance requirements, emphasizing that voltage and current measurements must achieve an accuracy of ±1%, while real, reactive, and apparent power calculations must fall within a ±1.41% error margin. These strict tolerances adhere to IEC standards and underscore the project’s importance in maintaining operational reliability during grid fluctuations.
+
+Oscar explained the high-level architecture of the PowerBox system, detailing how the Power Meter fits between the factory machinery and the PowerNode. While providing guidance on these foundational aspects, Oscar entrusted the detailed design work to us. This autonomy in designing the current measurement, voltage measurement, and power calculation subsystems challenges us to approach the project with creativity and innovation. During the session, Oscar answered our questions, clarifying both the technical intricacies and the broader industrial applications of the Power Meter.
+
 
 # 9/9/2024 - In-Person Lab Training
 went to the poets lab for the first time and did the in person high voltage training as well as general lab training, learned about lockout/tagout, got the access to the lab after completing an online training and quiz, we can go to the lab whenever to do our work
