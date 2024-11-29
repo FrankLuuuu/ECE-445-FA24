@@ -82,7 +82,11 @@ With these new skills, we started soldering both the current measurement PCB boa
 
 
 # 11/4/2024 - Voltage Testing and Redesign
-finished soldering the arduino and started testing the voltage circuit, the voltage circuit wasnt stepping down the voltage correctly, we think the power source and the signal generator is wrong, we also deciede to output the current value directly from the arduino as an analog 3-phase signal, but the arduino doesn't output analog signals, so we decided to use dac boards and a multiplexer to output the analog signals from the arduino 
+Today, we completed the soldering of the custom Arduino PCB and moved forward with testing the voltage circuit. During testing, we discovered that the voltage circuit was not stepping down the voltage as expected. After further investigation, we concluded that the issue might be related to the power source and the signal generator we were using. We plan to recheck both the power source and the signal generator to ensure they are providing the correct inputs for the voltage circuit.
+
+In addition to the voltage circuit issues, we also made some key decisions regarding the output of the current values. Initially, we had planned to output the current values directly from the Arduino as a 3-phase analog signal. However, since the Arduino does not natively support analog outputs, we pivoted and decided to use DAC boards and a multiplexer to generate and output the analog signals. This will allow us to send the current values as analog signals for further processing, ensuring that the system operates as intended.
+
+The DACs will be implemented with the help of this tutorial: https://learn.adafruit.com/mcp4725-12-bit-dac-tutorial?view=all.
 
 
 
