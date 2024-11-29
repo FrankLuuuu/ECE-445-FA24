@@ -24,55 +24,72 @@
 Today marked our first meeting with Oscar, the CEO of PowerBox Technology and our mentor for this project. Oscar introduced us to the Power Meter project, explaining its critical role in ensuring uninterrupted power for industrial factories by providing high-precision real-time power data to the PowerNode. He outlined the core tolerance requirements, emphasizing that voltage and current measurements must achieve an accuracy of ±1%, while real, reactive, and apparent power calculations must fall within a ±1.41% error margin. These strict tolerances adhere to IEC standards and underscore the project’s importance in maintaining operational reliability during grid fluctuations.
 
 Oscar explained the high-level architecture of the PowerBox system, detailing how the Power Meter fits between the factory machinery and the PowerNode. While providing guidance on these foundational aspects, Oscar entrusted the detailed design work to us. This autonomy in designing the current measurement, voltage measurement, and power calculation subsystems challenges us to approach the project with creativity and innovation. During the session, Oscar answered our questions, clarifying both the technical intricacies and the broader industrial applications of the Power Meter.
+![](https://cdn.discordapp.com/attachments/1281703228966436907/1294366232530780160/image.jpg?ex=674a07fd&is=6748b67d&hm=997dddac7a427dafbd56f2af4814d91f67b62318ee9bb87c1c6f8039254a1ec8&)
 
 
 # 9/9/2024 - In-Person Lab Training
 went to the poets lab for the first time and did the in person high voltage training as well as general lab training, learned about lockout/tagout, got the access to the lab after completing an online training and quiz, we can go to the lab whenever to do our work
 
+
 # 9/28/2024 - Voltage Circuit Explanation
 we held a zoom meeting with oscar for him to explain each component of the voltage circuit to us
+
 
 # 10/9/2024 - DIY Arduino PCB
 we learned after our design review that we need to make our own arduino board instead of using an existing one, researched a lot about arduino designs, did a lot of pcb design on all three boards, decided to do three separate boards instead of a big board due to spacing issues
 
+
 # 10/10/2024 - Power Factor Discussion
 we had a meeting with oscar to find some ideas on how to calculate the power factor with our current design, arduino cannot accept ac signal so have to think of snother way to calculate, we were going to use another chip to calculate all power values, or use another circuit, we decided to do everything in software, we found an article that explains how to calculate the power factor using instantaneous and RMS values
+
 
 # 10/15/2024 - PCB Meeting with Victor
 we help a zoom meeting with an expert on pcb that oscar employs to go over some questions we had about the pcb design including the ground and the voltage switching on the voltage board
 
+
 # 10/24/2024 - PCB Training
 we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun
+
 
 # 11/1/2024 - SMD Soldering Training
 met with oscar again for him to teach us how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
 
+
 # 11/2/2024 - Arduino Soldering
 did more arduino soldering and finished the soldering of the current board
+
 
 # 11/3/2024 - Finish Soldering
 finished soldering the arduino board but realized that we are missing a component that didnt arrive yet, decided to get a component lm317 from the self service center and eceb and solder it the next day
 
+
 # 11/4/2024 - Voltage Testing and Redesign
 finished soldering the arduino and started testing the voltage circuit, the voltage circuit wasnt stepping down the voltage correctly, we think the power source and the signal generator is wrong, we also deciede to output the current value directly from the arduino as an analog 3-phase signal, but the arduino doesn't output analog signals, so we decided to use dac boards and a multiplexer to output the analog signals from the arduino 
+
 
 # 11/8/2024 - More Testing
 started to test the arduino board, the led isnt lighting up when i connect it to power supply, i might have shorted the arduino board by touching two of the pads on the pcb board, did research on how to test the board for connections, did voltage reading tests to debug the board, decided to first write code for the pre-built arduino board and debug using that and then transfer the code on our own arduino board
 
+
 # 11/9/2024 - Testing and Start Programming
 started testing on the current board, started to code for the arduino
+
 
 # 11/11/2024 - Continue Programming
 finished arduino code, current and voltage boards seem to partially work, with some issues
 
+
 # 11/15/2024 - Testing Code
 finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, started testing the arduino code, found compiler errors saying modbus tcp isn't compatible with arduino uno, will make changes to the code
+
 
 # 11/17/2024 - Finished Initial Code Testing
 revised the server and client code to be compatible with arduino uno by using the arduino ethernet library to simulate the modbus protocol, server now listens to requests for the data and responds with the calculated data, the client side sends the requests in a loop and outputs the calculated power data
 
+
 # 11/18/2024 - Finished Demo Testing
 adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value 
+
 
 # 11/20/2024 - Test DACs and Multiplexer
 tested the DAC output with hardcode values and the multiplexer selecting which DAC to output the value
