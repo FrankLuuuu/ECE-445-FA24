@@ -52,6 +52,8 @@ Additionally, Oscar answered questions about the current transformers, their rol
 # 10/9/2024 - DIY Arduino PCB
 After our design review, we learned that we need to create our own custom Arduino board instead of using an existing one. To prepare for this, we spent the day researching various Arduino designs and diving into the intricacies of PCB design. We examined different layouts and considerations, including power distribution, signal integrity, and component placement, to ensure our custom board would meet the high-level requirements.
 
+![Screenshot 2024-11-29 at 8 34 43 AM](https://github.com/user-attachments/assets/34d52b9f-bf84-4cff-ad25-12124ac25423)
+
 In the process, we also worked on the PCB design for all three major subsystems: the current measurement circuit, voltage measurement circuit, and power calculation subsystem. After evaluating our options and the available space, we decided to go with three separate PCB boards instead of a single large board. This approach was chosen to mitigate spacing issues and ensure that each subsystem could be optimized independently, making the overall design more manageable and scalable.
 
 The day was a productive step toward creating the PCBs, and we now have a clearer direction for the layout and design of the individual boards.
@@ -59,7 +61,11 @@ The day was a productive step toward creating the PCBs, and we now have a cleare
 
 
 # 10/10/2024 - Power Factor Discussion
-we had a meeting with oscar to find some ideas on how to calculate the power factor with our current design, arduino cannot accept ac signal so have to think of snother way to calculate, we were going to use another chip to calculate all power values, or use another circuit, we decided to do everything in software, we found an article that explains how to calculate the power factor using instantaneous and RMS values
+Today, we had a meeting with Oscar to discuss potential solutions for calculating the power factor within our current design. One challenge we encountered is that the Arduino cannot directly handle AC signals, which is a critical aspect for calculating power factor. Initially, we considered using another chip to handle the power calculations, or possibly incorporating an additional circuit to calculate all the power values. However, after further discussion and exploration, we decided to tackle the power factor calculation entirely in software.
+
+We researched various methods for calculating power factor, and found an article that provided a detailed explanation on how to compute it using both instantaneous and RMS voltage and current values. This approach involves sampling the voltage and current at high frequencies, calculating their instantaneous product, and then averaging over a set of samples to obtain the real power. The apparent power can be derived from the RMS values of voltage and current. The power factor is then simply the ratio of real power to apparent power.
+
+This solution aligns well with our project’s constraints and simplifies the design by avoiding the need for additional hardware. With this approach in mind, we are now able to proceed with the software implementation for the power factor calculation. Here is the main source that we used: https://docs.openenergymonitor.org/electricity-monitoring/ac-power-theory/arduino-maths.html.
 
 
 
