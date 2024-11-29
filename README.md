@@ -7,12 +7,8 @@
 * [10/10/2024 - Power Factor Discussion](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#10102024---power-factor-discussion)
 * [10/15/2024 - PCB Meeting with Victor](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#10152024---pcb-meeting-with-victor)
 * [10/24/2024 - PCB Training](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#10242024---pcb-training)
-* [11/1/2024 - SMD Soldering Training](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1112024---smd-soldering-training)
-* [11/2/2024 - Arduino Soldering](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1122024---arduino-soldering)
-* [11/3/2024 - Finish Soldering](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1132024---finish-soldering)
 * [11/4/2024 - Voltage Testing and PCB Design](https://github.com/FrankLuuuu/ECE-445-FA24/tree/main?tab=readme-ov-file#1142024---voltage-testing-and-redesign)
 * [11/8/2024 - More Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1182024---more-testing)
-* [11/9/2024 - Testing and Start Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#1192024---testing-and-start-programming)
 * [11/11/2024 - Continue Programming](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11112024---continue-programming)
 * [11/15/2024 - Testing Code](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11152024---testing-code)
 * [11/17/2024 - Finished Initial Code Testing](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11172024---finished-initial-code-testing)
@@ -70,27 +66,14 @@ This solution aligns well with our project’s constraints and simplifies the de
 
 
 # 10/15/2024 - PCB Meeting with Victor
-we help a zoom meeting with an expert on pcb that oscar employs to go over some questions we had about the pcb design including the ground and the voltage switching on the voltage board
+We held a Zoom meeting with Victor, an expert in PCB design who works with Oscar, to go over some specific questions we had regarding our PCB designs. Victor was brought in to help us address some of the technical challenges we encountered while designing the boards for the Power Meter project.
+
+During the meeting, we focused on two main areas of concern: the grounding strategy and voltage switching on the voltage board. Victor provided valuable insights into proper grounding techniques, emphasizing the importance of minimizing noise and interference, especially since we are working with high-precision voltage and current measurements. He also clarified how to handle voltage switching on the voltage board to ensure stability and accuracy, particularly when dealing with the stepped-down voltage signals that will be processed by the Arduino.
 
 
 
-# 10/24/2024 - PCB Training
-we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun
-
-
-
-# 11/1/2024 - SMD Soldering Training
-met with oscar again for him to teach us how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
-
-
-
-# 11/2/2024 - Arduino Soldering
-did more arduino soldering and finished the soldering of the current board
-
-
-
-# 11/3/2024 - Finish Soldering
-finished soldering the arduino board but realized that we are missing a component that didnt arrive yet, decided to get a component lm317 from the self service center and eceb and solder it the next day
+# 10/24/2024 - Soldering Training
+we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun, how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
 
 
 
@@ -104,13 +87,8 @@ started to test the arduino board, the led isnt lighting up when i connect it to
 
 
 
-# 11/9/2024 - Testing and Start Programming
-started testing on the current board, started to code for the arduino
-
-
-
 # 11/11/2024 - Continue Programming
-finished arduino code, current and voltage boards seem to partially work, with some issues
+started testing on the current board, finished arduino code, current and voltage boards seem to partially work, with some issues
 
 
 
@@ -125,9 +103,5 @@ revised the server and client code to be compatible with arduino uno by using th
 
 
 # 11/18/2024 - Finished Demo Testing
-adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value 
+adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value, tested the DAC output with hardcode values and the multiplexer selecting which DAC to output the value
 
-
-
-# 11/20/2024 - Test DACs and Multiplexer
-tested the DAC output with hardcode values and the multiplexer selecting which DAC to output the value
