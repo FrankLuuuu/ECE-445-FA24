@@ -20,11 +20,13 @@
 * [11/20/2024 - Test DACs and Multiplexer](https://github.com/FrankLuuuu/ECE-445-FA24/blob/main/README.md#11202024---test-dacs-and-multiplexer)
   
 
+
 # 9/8/2024 - First Meeting with Oscar
 Today marked our first meeting with Oscar, the CEO of PowerBox Technology and our mentor for this project. Oscar introduced us to the Power Meter project, explaining its critical role in ensuring uninterrupted power for industrial factories by providing high-precision real-time power data to the PowerNode. He outlined the core tolerance requirements, emphasizing that voltage and current measurements must achieve an accuracy of ±1%, while real, reactive, and apparent power calculations must fall within a ±1.41% error margin. These strict tolerances adhere to IEC standards and underscore the project’s importance in maintaining operational reliability during grid fluctuations.
 
 Oscar explained the high-level architecture of the PowerBox system, detailing how the Power Meter fits between the factory machinery and the PowerNode. While providing guidance on these foundational aspects, Oscar entrusted the detailed design work to us. This autonomy in designing the current measurement, voltage measurement, and power calculation subsystems challenges us to approach the project with creativity and innovation. During the session, Oscar answered our questions, clarifying both the technical intricacies and the broader industrial applications of the Power Meter.
 ![image](https://cdn.discordapp.com/attachments/1281703228966436907/1294366232530780160/image.jpg?ex=674a07fd&is=6748b67d&hm=997dddac7a427dafbd56f2af4814d91f67b62318ee9bb87c1c6f8039254a1ec8&)
+
 
 
 # 9/9/2024 - In-Person Lab Training
@@ -39,7 +41,12 @@ In addition to the hands-on safety training, we completed an online course and q
 
 
 # 9/28/2024 - Voltage Circuit Explanation
-we held a zoom meeting with oscar for him to explain each component of the voltage circuit to us
+Today, we had a Zoom meeting with Oscar to dive deeper into the voltage circuit design. He walked us through each component of the circuit, providing detailed explanations of how they work together to measure the RMS voltage of the system. Oscar began by highlighting the importance of the voltage divider circuit, which is crucial for stepping down the high voltage from the inverter to a manageable level that can be processed by the Arduino. He explained how the resistors in the divider circuit are selected to ensure that the voltage is within the Arduino’s input range of 0-5V.
+
+Oscar also introduced us to the AD737 chip, which is used to convert the RMS voltage into a DC voltage. He emphasized that the use of DC voltage is beneficial for maintaining a stable measurement, which is essential for accurate power calculations. 
+
+Additionally, Oscar answered questions about the current transformers, its role in the whole design, and how the voltage and current measurement subsystems will interact. This meeting helped clarify the functional relationships between the components and gave us a clearer understanding of how the circuit is designed to meet the project’s accuracy requirements.
+
 
 
 # 10/9/2024 - DIY Arduino PCB
