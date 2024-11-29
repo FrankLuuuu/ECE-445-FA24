@@ -104,17 +104,27 @@ When I began testing the code on the Arduino, I encountered some compiler errors
 
 To resolve this, I’ll need to modify the code, either by finding a compatible library for the Arduino Uno or by considering an alternative approach to implementing the Modbus TCP communication protocol. These changes will ensure that the system can function as intended with the available hardware.
 
+<img width="1101" alt="image" src="https://github.com/user-attachments/assets/6e79d6f1-e6b9-4a2c-bdf2-cb7f0bd90db8">
 
 
-# 11/17/2024 - Finished Initial Code Testing
+
+
+# 11/17/2024 - Finished Code Testing
 I revised the server and client code to make it compatible with the Arduino Uno. Since the Modbus TCP library was not compatible with the Arduino Uno due to memory limitations, I switched to using the Arduino Ethernet library to simulate the Modbus protocol. This adjustment allowed us to implement basic communication without requiring additional hardware or modifications to the existing Arduino Uno setup.
 
 With the new configuration, the server is now able to listen for incoming requests and respond with the calculated power data, including the current, voltage, and power factor values. On the client side, the code sends requests in a continuous loop to the server, which outputs the calculated power data in response.
 
 The communication between the server and client is now functioning as expected, and the system is able to simulate the power calculations and transmit the data correctly to a tolerance of around 1%. This marks a significant step in verifying the system's functionality before moving on to integration with the other systems.
 
+<img width="779" alt="Screenshot 2024-11-29 at 12 06 37 PM" src="https://github.com/user-attachments/assets/2441bff8-0a76-4cbf-8851-a7c0b34aacdf">
+
 
 
 # 11/18/2024 - Finished Demo Testing
-adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value, tested the DAC output with hardcode values and the multiplexer selecting which DAC to output the value
+Today, I made several adjustments to the server code to integrate the AC current and voltage readings from the Arduino’s pins. I modified the code to handle the AC signals by applying DC offsets and calibrating the readings for more accurate voltage and current measurements. The power data is now calculated through sampling and the computation of the RMS values.
+
+I also tested the DAC output by using hardcoded values to simulate the current values. This allowed me to verify that the DAC board was functioning correctly and that the multiplexer was properly selecting which DAC to output the value from. This setup is crucial for providing the analog output signals corresponding to the measured current and voltage, which will be used in further calculations.
+
+The system should be now fully functional for demo purposes, with accurate power data being calculated and transmitted as expected. The next steps will involve further fine-tuning and full integration with the other systems.
+
 
