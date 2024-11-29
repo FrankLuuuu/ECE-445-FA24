@@ -73,7 +73,11 @@ During the meeting, we focused on two main areas of concern: the grounding strat
 
 
 # 10/24/2024 - Soldering Training
-we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun, how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
+Today, we met with Oscar at the POETS lab, where he provided us with some hardware that could serve as inspiration for the design of our Power Meter. This was a valuable opportunity to see how other components are built and to gather ideas for refining our own design. During the session, Oscar also taught us several essential soldering techniques, which will be crucial as we begin assembling our PCBs.
+
+Oscar walked us through basic soldering methods, including how to properly solder through-hole components and surface-mount devices (SMD). He then demonstrated techniques like using a hot air gun for solder removal and how to work with a hot plate and soldering paste for soldering SMD components. This was especially helpful for handling the small and delicate components on our custom Arduino and current measurement PCB boards.
+
+With these new skills, we started soldering both the current measurement PCB board and the Arduino PCB board. 
 
 
 
