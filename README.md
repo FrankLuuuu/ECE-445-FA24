@@ -45,64 +45,82 @@ Today, we had a Zoom meeting with Oscar to dive deeper into the voltage circuit 
 
 Oscar also introduced us to the AD737 chip, which is used to convert the RMS voltage into a DC voltage. He emphasized that the use of DC voltage is beneficial for maintaining a stable measurement, which is essential for accurate power calculations. 
 
-Additionally, Oscar answered questions about the current transformers, its role in the whole design, and how the voltage and current measurement subsystems will interact. This meeting helped clarify the functional relationships between the components and gave us a clearer understanding of how the circuit is designed to meet the project’s accuracy requirements.
+Additionally, Oscar answered questions about the current transformers, their role in the whole design, and how the voltage and current measurement subsystems will interact. This meeting helped clarify the functional relationships between the components and gave us a clearer understanding of how the circuit is designed to meet the project’s accuracy requirements.
 
 
 
 # 10/9/2024 - DIY Arduino PCB
-we learned after our design review that we need to make our own arduino board instead of using an existing one, researched a lot about arduino designs, did a lot of pcb design on all three boards, decided to do three separate boards instead of a big board due to spacing issues
+After our design review, we learned that we need to create our own custom Arduino board instead of using an existing one. To prepare for this, we spent the day researching various Arduino designs and diving into the intricacies of PCB design. We examined different layouts and considerations, including power distribution, signal integrity, and component placement, to ensure our custom board would meet the high-level requirements.
+
+In the process, we also worked on the PCB design for all three major subsystems: the current measurement circuit, voltage measurement circuit, and power calculation subsystem. After evaluating our options and the available space, we decided to go with three separate PCB boards instead of a single large board. This approach was chosen to mitigate spacing issues and ensure that each subsystem could be optimized independently, making the overall design more manageable and scalable.
+
+The day was a productive step toward creating the PCBs, and we now have a clearer direction for the layout and design of the individual boards.
+
 
 
 # 10/10/2024 - Power Factor Discussion
 we had a meeting with oscar to find some ideas on how to calculate the power factor with our current design, arduino cannot accept ac signal so have to think of snother way to calculate, we were going to use another chip to calculate all power values, or use another circuit, we decided to do everything in software, we found an article that explains how to calculate the power factor using instantaneous and RMS values
 
 
+
 # 10/15/2024 - PCB Meeting with Victor
 we help a zoom meeting with an expert on pcb that oscar employs to go over some questions we had about the pcb design including the ground and the voltage switching on the voltage board
+
 
 
 # 10/24/2024 - PCB Training
 we met with oscar at the poets lab for him to give us some hardware could give us inspiration in the design of the powermeter, taught us some basic soldering techniques and solder removal techniques like using the hot air gun
 
 
+
 # 11/1/2024 - SMD Soldering Training
 met with oscar again for him to teach us how to use hot plate and soldering paste to solder the smd components we started to solder both the current pcb board and the arduino pcb board
+
 
 
 # 11/2/2024 - Arduino Soldering
 did more arduino soldering and finished the soldering of the current board
 
 
+
 # 11/3/2024 - Finish Soldering
 finished soldering the arduino board but realized that we are missing a component that didnt arrive yet, decided to get a component lm317 from the self service center and eceb and solder it the next day
+
 
 
 # 11/4/2024 - Voltage Testing and Redesign
 finished soldering the arduino and started testing the voltage circuit, the voltage circuit wasnt stepping down the voltage correctly, we think the power source and the signal generator is wrong, we also deciede to output the current value directly from the arduino as an analog 3-phase signal, but the arduino doesn't output analog signals, so we decided to use dac boards and a multiplexer to output the analog signals from the arduino 
 
 
+
 # 11/8/2024 - More Testing
 started to test the arduino board, the led isnt lighting up when i connect it to power supply, i might have shorted the arduino board by touching two of the pads on the pcb board, did research on how to test the board for connections, did voltage reading tests to debug the board, decided to first write code for the pre-built arduino board and debug using that and then transfer the code on our own arduino board
+
 
 
 # 11/9/2024 - Testing and Start Programming
 started testing on the current board, started to code for the arduino
 
 
+
 # 11/11/2024 - Continue Programming
 finished arduino code, current and voltage boards seem to partially work, with some issues
+
 
 
 # 11/15/2024 - Testing Code
 finished code for both server and client, wrote a separate test script for modular testing of the server with arbitrary current value/ratio, voltage value/ratio, and power factor, started testing the arduino code, found compiler errors saying modbus tcp isn't compatible with arduino uno, will make changes to the code
 
 
+
 # 11/17/2024 - Finished Initial Code Testing
 revised the server and client code to be compatible with arduino uno by using the arduino ethernet library to simulate the modbus protocol, server now listens to requests for the data and responds with the calculated data, the client side sends the requests in a loop and outputs the calculated power data
 
 
+
 # 11/18/2024 - Finished Demo Testing
 adjusted the server code to read ac current and voltage from the arduino pins, adjusted the readings with dc offsets and calibrations, power data calculated via sampling and getting the RMS value 
+
 
 
 # 11/20/2024 - Test DACs and Multiplexer
