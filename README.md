@@ -91,7 +91,11 @@ The DACs will be implemented with the help of this tutorial: https://learn.adafr
 
 
 # 11/8/2024 - More Testing
-started to test the arduino board, the led isnt lighting up when i connect it to power supply, i might have shorted the arduino board by touching two of the pads on the pcb board, did research on how to test the board for connections, did voltage reading tests to debug the board, decided to first write code for the pre-built arduino board and debug using that and then transfer the code on our own arduino board
+Today, we began testing the custom Arduino board, but ran into an issue: the LED wasn’t lighting up when connected to the power supply. After some troubleshooting, we suspect that the board might have been shorted during assembly, possibly from accidentally touching two of the pads on the PCB. To verify this, I did some research on how to test the board for short circuits and potential connection issues.
+
+I performed voltage reading tests at various points on the board to debug the connections and check for irregularities. These tests helped us identify areas where the board might not be receiving the correct voltage, which could explain the lack of functionality. I realized that the 5V regulator was not outputting the correct voltage values, which could indicate a faulty component that will need to be replaced.
+
+Given the complications with the custom Arduino board, I decided to shift the testing strategy. I wrote and tested the code on a pre-built Arduino board first, using it as a reliable platform for debugging. Once the code works as expected on the pre-built board, I’ll transfer it to the custom Arduino board to continue development. This will help ensure that the logic is correct before dealing with any potential hardware issues on the custom board.
 
 
 
