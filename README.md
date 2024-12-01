@@ -19,7 +19,8 @@
 Today marked our first meeting with Oscar, the CEO of PowerBox Technology and our mentor for this project. Oscar introduced us to the Power Meter project, explaining its critical role in ensuring uninterrupted power for industrial factories by providing high-precision real-time power data to the PowerNode. He outlined the core tolerance requirements, emphasizing that voltage and current measurements must achieve an accuracy of ±1%, while real, reactive, and apparent power calculations must fall within a ±1.41% error margin. These strict tolerances adhere to IEC standards and underscore the project’s importance in maintaining operational reliability during grid fluctuations.
 
 Oscar explained the high-level architecture of the PowerBox system, detailing how the Power Meter fits between the factory machinery and the PowerNode. While providing guidance on these foundational aspects, Oscar entrusted the detailed design work to us. This autonomy in designing the current measurement, voltage measurement, and power calculation subsystems challenges us to approach the project with creativity and innovation. During the session, Oscar answered our questions, clarifying both the technical intricacies and the broader industrial applications of the Power Meter.
-![image](https://cdn.discordapp.com/attachments/1281703228966436907/1294366232530780160/image.jpg?ex=674a07fd&is=6748b67d&hm=997dddac7a427dafbd56f2af4814d91f67b62318ee9bb87c1c6f8039254a1ec8&)
+<img width="919" alt="Screenshot 2024-12-01 at 5 15 34 PM" src="https://github.com/user-attachments/assets/5fe65b15-f69c-481e-a8c9-e285d623b92c">
+
 
 
 
