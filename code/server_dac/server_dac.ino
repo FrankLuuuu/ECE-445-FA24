@@ -133,7 +133,7 @@ void loop() {
   }
 
   // Add DAC output functionality
-  outputToDACs(currentRMS);
+  outputToDACs(150.0);//currentRMS);  // testing with 150A current 
 
   delay(1000);
 }
