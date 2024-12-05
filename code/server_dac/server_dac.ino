@@ -38,9 +38,9 @@ void setup() {
   Serial.println(Ethernet.localIP());
   
   // Initialize each DAC by selecting the channel and calling dac.begin
-  for (int channel = 0; channel < 3; channel++) {
+  for (int channel = 0; channel < 6; channel++) {
     selectTCA9548AChannel(channel);  
-    dac.begin(0x60);                 
+    dac.begin(0x62);                 
   }
 }
 
@@ -133,23 +133,28 @@ void loop() {
   }
 
   // Add DAC output functionality
-  outputToDACs(150.0);//currentRMS);  // testing with 150A current 
+  outputToDACs(currentRMS);  // testing with 150A current 
 
   delay(1000);
 }
 
-// Function to output voltage to three DACs via the TCA9548A multiplexer
+// Function to output voltage to six DACs via the TCA9548A multiplexer
 void outputToDACs(float currentRMS) {
   // Calculate DAC output value based on currentRMS
   uint16_t dacValue = (currentRMS / 50.0) * 4095 / 5.0;  // Scale for 12-bit DAC (0–4095) with 5V reference
+  dacValue = 0;
 
-  // Output the same voltage to each DAC through the TCA9548A
-  for (int channel = 0; channel < 3; channel++) {
+  // Output the different voltage to each DAC through the TCA9548A
+  for (int channel = 0; channel < 6; channel++) {
     selectTCA9548AChannel(channel);  // Select each channel
-    dac.setVoltage(dacValue, false); // Set DAC output without EEPROM save
+    if (dacValue == 0)
+      dac.setVoltage(dacValue, false);
+    else
+      dac.setVoltage(dacValue - 13, false); // Set DAC output without EEPROM save
     Serial.print("DAC Channel ");
     Serial.print(channel);
     Serial.print(" Output: ");
     Serial.println((float)dacValue * 5.0 / 4095.0, 2); // Print approximate output voltage
+    dacValue += 410;  // Increment to set different voltage for each DAC (approx. 0 to 3V)
   }
 }

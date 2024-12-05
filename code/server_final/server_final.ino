@@ -92,42 +92,87 @@ void loop() {
   } else if (phaseTimeDiff < -(1000000 / 60 / 2)) {
     phaseTimeDiff += (1000000 / 60);       // Add one full cycle
   }
-
   Serial.print("Phase Diff: ");
   Serial.print(phaseTimeDiff);
   Serial.println("");
 
+  // Calculate phase angle using arccosine of the power factor
+  float phaseAngleRad = acos(abs(powerFactor));  // Phase angle in radians
+
   String powerFactorType = "Lagging";
-  // Determine if the power factor is leading or lagging based on phase time difference
+  // If power factor is negative, the current is leading the voltage
   if (phaseTimeDiff < 0) {
     powerFactorType = "Leading";
+    phaseAngleRad = -phaseAngleRad;  // Negate the phase angle for leading power factor
   }
 
-  float powerFactorInt = powerFactor * 100; // Power factor as an integer percentage (to fit in 2 bytes)
+  float phaseAngleDeg = phaseAngleRad * (180.0 / M_PI);  // Convert to degrees
+  float reactivePower = apparentPower * sin(phaseAngleRad);
 
-  // Create the Modbus response
-  byte response[18];
-  response[0] = 0x01; // Transaction ID (example)
-  response[1] = 0x00; // Protocol ID
-  response[2] = 0x00; // Length
-  response[3] = 0x00; // Unit ID
-  response[4] = 0x03; // Function Code
-  response[5] = 0x06; // Byte Count
-  response[6] = highByte((int)realPower);      // Real Power high byte
-  response[7] = lowByte((int)realPower);      // Real Power low byte
-  response[8] = highByte((int)apparentPower); // Apparent Power high byte
-  response[9] = lowByte((int)apparentPower);  // Apparent Power low byte
-  response[10] = highByte((int)reactivePower); // Reactive Power high byte
-  response[11] = lowByte((int)reactivePower);  // Reactive Power low byte
-  response[12] = highByte((int)powerFactorInt); // Power Factor high byte
-  response[13] = lowByte((int)powerFactorInt);  // Power Factor low byte
-  response[14] = (powerFactorType == "Leading") ? 0x01 : 0x00; // Leading or Lagging
+  // Print calculated values to Serial Monitor
+  Serial.print("Voltage RMS: ");
+  Serial.print(voltageRMS);
+  Serial.println(" V");
 
-  // Send the response
+  Serial.print("Current RMS: ");
+  Serial.print(currentRMS);
+  Serial.println(" A");
+
+  Serial.print("Real Power: ");
+  Serial.print(realPower);
+  Serial.println(" W");
+
+  Serial.print("Apparent Power: ");
+  Serial.print(apparentPower);
+  Serial.println(" VA");
+
+  Serial.print("Reactive Power: ");
+  Serial.print(reactivePower);
+  Serial.println(" VAR");
+
+  Serial.print("Power Factor: ");
+  Serial.print(abs(powerFactor));
+  Serial.print(" (");
+  Serial.print(powerFactorType);
+  Serial.print("), Phase Angle: ");
+  Serial.print(phaseAngleDeg);
+  Serial.println(" degrees");
+
+  // Ethernet communication
   EthernetClient client = server.available();
   if (client) {
-    client.write(response, sizeof(response));
-    client.stop();
+    Serial.println("New client connected");
+    while (client.connected()) {
+      if (client.available()) {
+        byte request[12];
+        client.read(request, sizeof(request));
+
+        byte response[16];
+        response[0] = request[0];
+        response[1] = request[1];
+        response[2] = 0x00;
+        response[3] = 0x00;
+        response[4] = 0x00;
+        response[5] = 0x0A;  // Adjusted response length
+        response[6] = request[6];
+        response[7] = 0x03;
+        response[8] = 0x08;  // Changed byte count to 8
+
+        response[9] = highByte((int)realPower);      // Real Power high byte
+        response[10] = lowByte((int)realPower);      // Real Power low byte
+        response[11] = highByte((int)apparentPower); // Apparent Power high byte
+        response[12] = lowByte((int)apparentPower);  // Apparent Power low byte
+        response[13] = highByte((int)reactivePower); // Reactive Power high byte
+        response[14] = lowByte((int)reactivePower);  // Reactive Power low byte
+
+        // Add Power Factor (leading/lagging) to response
+        response[15] = (powerFactorType == "Leading") ? 0x01 : 0x00; // 0x01 for Leading, 0x00 for Lagging
+
+        client.write(response, sizeof(response));
+        client.stop();
+      }
+    }
+    Serial.println("Client disconnected");
   }
 
   delay(1000);
