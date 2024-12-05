@@ -6,8 +6,9 @@ byte mac[] = { 0xA8, 0x61, 0x0A, 0xAF, 0x07, 0x68 };
 IPAddress ip(192, 168, 1, 2);
 EthernetServer server(502);
 
-const int voltagePin = A0; // Analog pin for voltage sensor
-const int currentPin = A1; // Analog pin for current sensor
+// Pin assignments for 3-phase voltage and current
+const int voltagePins[3] = { A0, A1, A2 }; // Voltage for Phase A, B, C
+const int currentPins[3] = { A3, A4, A5 }; // Current for Phase A, B, C
 
 const float voltageStepUpRatio = 100.0;  // Voltage step-up ratio
 const float currentStepUpRatio = 101.52284;  // Current step-up ratio
@@ -27,116 +28,127 @@ void setup() {
 }
 
 void loop() {
-  float voltageSum = 0;
-  float currentSum = 0;
-  float powerSum = 0;
+  float voltageSum[3] = {0, 0, 0};
+  float currentSum[3] = {0, 0, 0};
+  float powerSum[3] = {0, 0, 0};
   int numSamples = 200;
 
-  unsigned long voltageZeroCrossTime = 0;
-  unsigned long currentZeroCrossTime = 0;
-  bool voltageCrossed = false;
-  bool currentCrossed = false;
+  unsigned long voltageZeroCrossTime[3] = {0, 0, 0};
+  unsigned long currentZeroCrossTime[3] = {0, 0, 0};
+  bool voltageCrossed[3] = {false, false, false};
+  bool currentCrossed[3] = {false, false, false};
 
-  // Sampling loop for AC voltage and current
+  // Sampling loop for 3-phase AC voltage and current
   for (int i = 0; i < numSamples; i++) {
-    int rawVoltageReading = analogRead(voltagePin);
-    int rawCurrentReading = analogRead(currentPin);
+    for (int phase = 0; phase < 3; phase++) {
+      int rawVoltageReading = analogRead(voltagePins[phase]);
+      int rawCurrentReading = analogRead(currentPins[phase]);
 
-    // Print raw ADC readings to Serial Monitor
-    // Serial.print("Raw Voltage Reading: ");
-    // Serial.print(rawVoltageReading);
-    // Serial.print(" | Raw Current Reading: ");
-    // Serial.println(rawCurrentReading);
+      // Read and normalize voltage and current
+      float voltageSample = rawVoltageReading - voltageOffset;
+      float currentSample = rawCurrentReading - currentOffset;
 
-    // Read and normalize voltage and current
-    float voltageSample = rawVoltageReading - voltageOffset;
-    float currentSample = rawCurrentReading - currentOffset;
+      // Convert to actual voltage/current by scaling
+      float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration * voltageStepUpRatio;
+      float current = currentSample * (5.0 / 1023.0) * currentCalibration * currentStepUpRatio;
 
-    // Convert to actual voltage/current by scaling
-    float voltage = voltageSample * (5.0 / 1023.0) * voltageCalibration * voltageStepUpRatio;
-    float current = currentSample * (5.0 / 1023.0) * currentCalibration * currentStepUpRatio;
+      // Accumulate RMS values and instantaneous power for each phase
+      voltageSum[phase] += voltage * voltage;
+      currentSum[phase] += current * current;
+      powerSum[phase] += voltage * current;
 
-    // Accumulate RMS values and instantaneous power
-    voltageSum += voltage * voltage;
-    currentSum += current * current;
-    powerSum += voltage * current;
+      // Add hysteresis to zero-crossing detection for each phase
+      if (voltageSample >= 10 && !voltageCrossed[phase]) {
+        voltageZeroCrossTime[phase] = micros();
+        voltageCrossed[phase] = true;
+      }
+      if (currentSample >= 10 && !currentCrossed[phase]) {
+        currentZeroCrossTime[phase] = micros();
+        currentCrossed[phase] = true;
+      }
 
-    // Add hysteresis to zero-crossing detection
-    if (voltageSample >= 10 && !voltageCrossed) { // 10 ADC units as hysteresis
-        voltageZeroCrossTime = micros();
-        voltageCrossed = true;
+      // Reset crossing flags once signal goes below threshold
+      if (voltageSample < -10) voltageCrossed[phase] = false;
+      if (currentSample < -10) currentCrossed[phase] = false;
     }
-    if (currentSample >= 10 && !currentCrossed) { // 10 ADC units as hysteresis
-        currentZeroCrossTime = micros();
-        currentCrossed = true;
-    }
-
-    // Reset crossing flags once signal goes below threshold
-    if (voltageSample < -10) voltageCrossed = false;
-    if (currentSample < -10) currentCrossed = false;
 
     delayMicroseconds(50);
   }
 
-  // Calculate RMS values and power
-  float voltageRMS = sqrt(voltageSum / numSamples);
-  float currentRMS = sqrt(currentSum / numSamples);
-  float realPower = powerSum / numSamples;
-  float apparentPower = voltageRMS * currentRMS;
-  float powerFactor = realPower / apparentPower;
+  float voltageRMS[3], currentRMS[3], realPower[3], apparentPower[3], reactivePower[3], powerFactor[3];
+  float totalRealPower = 0, totalApparentPower = 0, totalReactivePower = 0;
 
-  long phaseTimeDiff = currentZeroCrossTime - voltageZeroCrossTime;
-  // Correct phase wrapping
-  if (phaseTimeDiff > (1000000 / 60 / 2)) { // Half a cycle (8.33 ms)
-    phaseTimeDiff -= (1000000 / 60);       // Subtract one full cycle
-  } else if (phaseTimeDiff < -(1000000 / 60 / 2)) {
-    phaseTimeDiff += (1000000 / 60);       // Add one full cycle
-  }
-  Serial.print("Phase Diff: ");
-  Serial.print(phaseTimeDiff);
-  Serial.println("");
+  // Calculate RMS values, power, and power factor for each phase
+  for (int phase = 0; phase < 3; phase++) {
+    voltageRMS[phase] = sqrt(voltageSum[phase] / numSamples);
+    currentRMS[phase] = sqrt(currentSum[phase] / numSamples);
+    realPower[phase] = powerSum[phase] / numSamples;
+    apparentPower[phase] = voltageRMS[phase] * currentRMS[phase];
+    powerFactor[phase] = realPower[phase] / apparentPower[phase];
+    reactivePower[phase] = apparentPower[phase] * sqrt(1 - powerFactor[phase] * powerFactor[phase]);
 
-  // Calculate phase angle using arccosine of the power factor
-  float phaseAngleRad = acos(abs(powerFactor));  // Phase angle in radians
-
-  String powerFactorType = "Lagging";
-  // If power factor is negative, the current is leading the voltage
-  if (phaseTimeDiff < 0) {
-    powerFactorType = "Leading";
-    phaseAngleRad = -phaseAngleRad;  // Negate the phase angle for leading power factor
+    totalRealPower += realPower[phase];
+    totalApparentPower += apparentPower[phase];
+    totalReactivePower += reactivePower[phase];
   }
 
-  float phaseAngleDeg = phaseAngleRad * (180.0 / M_PI);  // Convert to degrees
-  float reactivePower = apparentPower * sin(phaseAngleRad);
+  // Calculate total power factor (based on total apparent and real power)
+  float totalPowerFactor = totalRealPower / totalApparentPower;
 
-  // Print calculated values to Serial Monitor
-  Serial.print("Voltage RMS: ");
-  Serial.print(voltageRMS);
-  Serial.println(" V");
+  // Print individual phase data
+  for (int phase = 0; phase < 3; phase++) {
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Voltage RMS: ");
+    Serial.print(voltageRMS[phase]);
+    Serial.println(" V");
+    
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Current RMS: ");
+    Serial.print(currentRMS[phase]);
+    Serial.println(" A");
+    
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Real Power: ");
+    Serial.print(realPower[phase]);
+    Serial.println(" W");
+    
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Apparent Power: ");
+    Serial.print(apparentPower[phase]);
+    Serial.println(" VA");
+    
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Reactive Power: ");
+    Serial.print(reactivePower[phase]);
+    Serial.println(" VAR");
+    
+    Serial.print("Phase ");
+    Serial.print(phase + 1);
+    Serial.print(" - Power Factor: ");
+    Serial.println(powerFactor[phase]);
+  }
 
-  Serial.print("Current RMS: ");
-  Serial.print(currentRMS);
-  Serial.println(" A");
-
-  Serial.print("Real Power: ");
-  Serial.print(realPower);
+  // Print total system data
+  Serial.println("Total System Power Data:");
+  Serial.print("Total Real Power: ");
+  Serial.print(totalRealPower);
   Serial.println(" W");
-
-  Serial.print("Apparent Power: ");
-  Serial.print(apparentPower);
+  
+  Serial.print("Total Apparent Power: ");
+  Serial.print(totalApparentPower);
   Serial.println(" VA");
-
-  Serial.print("Reactive Power: ");
-  Serial.print(reactivePower);
+  
+  Serial.print("Total Reactive Power: ");
+  Serial.print(totalReactivePower);
   Serial.println(" VAR");
-
-  Serial.print("Power Factor: ");
-  Serial.print(abs(powerFactor));
-  Serial.print(" (");
-  Serial.print(powerFactorType);
-  Serial.print("), Phase Angle: ");
-  Serial.print(phaseAngleDeg);
-  Serial.println(" degrees");
+  
+  Serial.print("Total Power Factor: ");
+  Serial.println(totalPowerFactor);
 
   // Ethernet communication
   EthernetClient client = server.available();
@@ -147,26 +159,26 @@ void loop() {
         byte request[12];
         client.read(request, sizeof(request));
 
-        byte response[16];
+        byte response[32];  // Adjusted response length
         response[0] = request[0];
         response[1] = request[1];
         response[2] = 0x00;
         response[3] = 0x00;
         response[4] = 0x00;
-        response[5] = 0x0A;  // Adjusted response length
+        response[5] = 0x0A;
         response[6] = request[6];
         response[7] = 0x03;
-        response[8] = 0x08;  // Changed byte count to 8
+        response[8] = 0x12;  // Changed byte count to 18 for 3 phases
 
-        response[9] = highByte((int)realPower);      // Real Power high byte
-        response[10] = lowByte((int)realPower);      // Real Power low byte
-        response[11] = highByte((int)apparentPower); // Apparent Power high byte
-        response[12] = lowByte((int)apparentPower);  // Apparent Power low byte
-        response[13] = highByte((int)reactivePower); // Reactive Power high byte
-        response[14] = lowByte((int)reactivePower);  // Reactive Power low byte
-
-        // Add Power Factor (leading/lagging) to response
-        response[15] = (powerFactorType == "Leading") ? 0x01 : 0x00; // 0x01 for Leading, 0x00 for Lagging
+        // Add data for all 3 phases
+        for (int phase = 0; phase < 3; phase++) {
+          response[9 + phase * 6] = highByte((int)realPower[phase]);
+          response[10 + phase * 6] = lowByte((int)realPower[phase]);
+          response[11 + phase * 6] = highByte((int)apparentPower[phase]);
+          response[12 + phase * 6] = lowByte((int)apparentPower[phase]);
+          response[13 + phase * 6] = highByte((int)reactivePower[phase]);
+          response[14 + phase * 6] = lowByte((int)reactivePower[phase]);
+        }
 
         client.write(response, sizeof(response));
         client.stop();
