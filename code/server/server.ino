@@ -6,22 +6,22 @@ byte mac[] = { 0xA8, 0x61, 0x0A, 0xAF, 0x07, 0x68 };
 IPAddress ip(192, 168, 1, 2);
 EthernetServer server(502);
 
-// Three-phase pins
-// Phase 1: Voltage = A0, Current = A1
-// Phase 2: Voltage = A2, Current = A3
-// Phase 3: Voltage = A4, Current = A5
-const int voltagePins[3] = {A0, A2, A4}; 
+// Three-phase input pins
+// Phase A: Voltage on A0, Current on A1
+// Phase B: Voltage on A2, Current on A3
+// Phase C: Voltage on A4, Current on A5
+const int voltagePins[3] = {A0, A2, A4};
 const int currentPins[3] = {A1, A3, A5};
 
-// Calibration and scaling factors (same for all phases in this example)
-const float voltageStepUpRatio = 100.0;      // Voltage step-up ratio
-const float currentStepUpRatio = 101.52284;  // Current step-up ratio
-const float voltageCalibration = 1.018;      // Adjust this for voltage calibration
-const float currentCalibration = 1.012;      // Adjust this for current calibration
+// Calibration factors
+const float voltageStepUpRatio = 100.0;  
+const float currentStepUpRatio = 101.52284;  
+const float voltageCalibration = 1.018; 
+const float currentCalibration = 1.012; 
 
-// Offsets for each phase (if different per channel, adjust accordingly)
-const float voltageOffset = 409.2; // ADC value for 2V DC offset (example)
-const float currentOffset = 503.4; // ADC value for 2.462V DC offset (example)
+// Offsets
+const float voltageOffset = 409.2; 
+const float currentOffset = 503.4; 
 
 void setup() {
   Serial.begin(9600);
@@ -34,19 +34,16 @@ void setup() {
 
 void loop() {
   int numSamples = 200;
+  unsigned long zeroCrossTimesVoltage[3] = {0,0,0};
+  unsigned long zeroCrossTimesCurrent[3] = {0,0,0};
+  bool crossedVoltage[3] = {false,false,false};
+  bool crossedCurrent[3] = {false,false,false};
 
-  // Arrays to accumulate sums per phase
+  // Accumulators for each phase
   float voltageSum[3] = {0,0,0};
   float currentSum[3] = {0,0,0};
   float powerSum[3]   = {0,0,0};
 
-  // Zero-crossing detection variables per phase
-  unsigned long voltageZeroCrossTime[3] = {0,0,0};
-  unsigned long currentZeroCrossTime[3] = {0,0,0};
-  bool voltageCrossed[3] = {false,false,false};
-  bool currentCrossed[3] = {false,false,false};
-
-  // Sampling
   for (int i = 0; i < numSamples; i++) {
     for (int ph = 0; ph < 3; ph++) {
       int rawVoltageReading = analogRead(voltagePins[ph]);
@@ -62,24 +59,27 @@ void loop() {
       currentSum[ph] += (current * current);
       powerSum[ph]   += (voltage * current);
 
-      // Zero-crossing detection for phase ph
-      if (voltageSample >= 10 && !voltageCrossed[ph]) {
-        voltageZeroCrossTime[ph] = micros();
-        voltageCrossed[ph] = true;
+      // Zero crossing detection
+      if (voltageSample >= 10 && !crossedVoltage[ph]) {
+        zeroCrossTimesVoltage[ph] = micros();
+        crossedVoltage[ph] = true;
       }
-      if (currentSample >= 10 && !currentCrossed[ph]) {
-        currentZeroCrossTime[ph] = micros();
-        currentCrossed[ph] = true;
+      if (currentSample >= 10 && !crossedCurrent[ph]) {
+        zeroCrossTimesCurrent[ph] = micros();
+        crossedCurrent[ph] = true;
       }
 
-      if (voltageSample < -10) voltageCrossed[ph] = false;
-      if (currentSample < -10) currentCrossed[ph] = false;
+      if (voltageSample < -10) crossedVoltage[ph] = false;
+      if (currentSample < -10) crossedCurrent[ph] = false;
     }
     delayMicroseconds(50);
   }
 
-  // Now compute per-phase values
-  float voltageRMS[3], currentRMS[3], realPower[3], apparentPower[3], powerFactor[3], phaseAngleDeg[3], reactivePower[3];
+  // Frequency assumption
+  float freq = 60.0;
+  float cycleTime = 1000000.0 / freq;
+
+  float voltageRMS[3], currentRMS[3], realPower[3], apparentPower[3], powerFactor[3], reactivePower[3];
   String powerFactorType[3];
 
   for (int ph = 0; ph < 3; ph++) {
@@ -87,23 +87,17 @@ void loop() {
     currentRMS[ph] = sqrt(currentSum[ph] / numSamples);
     realPower[ph]  = powerSum[ph] / numSamples;
     apparentPower[ph] = voltageRMS[ph] * currentRMS[ph];
+    powerFactor[ph] = (apparentPower[ph] == 0) ? 0 : (realPower[ph] / apparentPower[ph]);
 
-    float pf = 0;
-    if (apparentPower[ph] != 0) {
-      pf = realPower[ph] / apparentPower[ph];
-    }
-
-    // Determine leading or lagging
-    long phaseTimeDiff = (long)currentZeroCrossTime[ph] - (long)voltageZeroCrossTime[ph];
-    // Correct phase wrapping (assuming 60 Hz, adjust if needed)
-    float cycleTime = 1000000.0 / 60.0; // ~16666.7 microseconds per cycle
-    if (phaseTimeDiff > (cycleTime / 2)) {
+    long phaseTimeDiff = (long)zeroCrossTimesCurrent[ph] - (long)zeroCrossTimesVoltage[ph];
+    // Correct for wrapping
+    if (phaseTimeDiff > (long)(cycleTime/2)) {
       phaseTimeDiff -= (long)cycleTime;
-    } else if (phaseTimeDiff < -(cycleTime / 2)) {
+    } else if (phaseTimeDiff < -(long)(cycleTime/2)) {
       phaseTimeDiff += (long)cycleTime;
     }
 
-    float phaseAngleRad = acos(abs(pf));
+    float phaseAngleRad = acos(abs(powerFactor[ph]));
     powerFactorType[ph] = "Lagging";
     if (phaseTimeDiff < 0) {
       // Current leads voltage
@@ -111,113 +105,43 @@ void loop() {
       phaseAngleRad = -phaseAngleRad;
     }
 
-    phaseAngleDeg[ph] = phaseAngleRad * (180.0 / M_PI);
     reactivePower[ph] = apparentPower[ph] * sin(phaseAngleRad);
 
-    powerFactor[ph] = pf; // store signed PF for now
-
-    // Print to serial
+    // Print per-phase info
     Serial.print("Phase ");
     Serial.print(ph+1);
     Serial.println(":");
-    Serial.print("  Voltage RMS: ");
-    Serial.print(voltageRMS[ph]);
-    Serial.println(" V");
-    Serial.print("  Current RMS: ");
-    Serial.print(currentRMS[ph]);
-    Serial.println(" A");
-    Serial.print("  Real Power: ");
-    Serial.print(realPower[ph]);
-    Serial.println(" W");
-    Serial.print("  Apparent Power: ");
-    Serial.print(apparentPower[ph]);
-    Serial.println(" VA");
-    Serial.print("  Reactive Power: ");
-    Serial.print(reactivePower[ph]);
-    Serial.println(" VAR");
-    Serial.print("  Power Factor: ");
-    Serial.print(abs(powerFactor[ph]));
-    Serial.print(" (");
-    Serial.print(powerFactorType[ph]);
-    Serial.print("), Phase Angle: ");
-    Serial.print(phaseAngleDeg[ph]);
-    Serial.println(" degrees");
+    Serial.print("  Voltage RMS: "); Serial.print(voltageRMS[ph]); Serial.println(" V");
+    Serial.print("  Current RMS: "); Serial.print(currentRMS[ph]); Serial.println(" A");
+    Serial.print("  Real Power: "); Serial.print(realPower[ph]); Serial.println(" W");
+    Serial.print("  Apparent Power: "); Serial.print(apparentPower[ph]); Serial.println(" VA");
+    Serial.print("  Reactive Power: "); Serial.print(reactivePower[ph]); Serial.println(" VAR");
+    Serial.print("  Power Factor: "); Serial.print(abs(powerFactor[ph]));
+    Serial.print(" ("); Serial.print(powerFactorType[ph]); Serial.println(")");
+    Serial.println("");
   }
 
-  // Compute totals
+  // Calculate totals
   float totalRealPower = realPower[0] + realPower[1] + realPower[2];
-  float totalApparentPower = apparentPower[0] + apparentPower[1] + apparentPower[2];
+  float totalApparentPower = (apparentPower[0] + apparentPower[1] + apparentPower[2]);
+  float totalPowerFactor = (totalApparentPower == 0) ? 0 : (totalRealPower / totalApparentPower);
   float totalReactivePower = reactivePower[0] + reactivePower[1] + reactivePower[2];
 
-  float totalPF = 0;
-  if (totalApparentPower != 0) {
-    totalPF = totalRealPower / totalApparentPower;
-  }
-
-  // For total PF sign determination, we can use a heuristic:
-  // If the sum of phases has more leading or lagging phases, we can decide sign.
-  // For simplicity, assume if total PF > 0 => Lagging, < 0 => Leading
-  // Actually total PF should be based on sign of reactive (if needed).
-  // Here we’ll assume the sign of totalPF determined by the sign of totalReactivePower:
-  // if totalReactivePower < 0 => leading, else lagging.
-  String totalPFType = "Lagging";
-  if (totalReactivePower < 0) {
-    totalPFType = "Leading";
-  }
+  // Determine total leading/lagging (simplistic approach)
+  long sumPhaseDiff = ((long)zeroCrossTimesCurrent[0]- (long)zeroCrossTimesVoltage[0]) +
+                      ((long)zeroCrossTimesCurrent[1]- (long)zeroCrossTimesVoltage[1]) +
+                      ((long)zeroCrossTimesCurrent[2]- (long)zeroCrossTimesVoltage[2]);
+  String totalPowerFactorType = (sumPhaseDiff < 0) ? "Leading" : "Lagging";
 
   Serial.println("Total System:");
-  Serial.print("  Real Power: ");
-  Serial.print(totalRealPower);
-  Serial.println(" W");
-  Serial.print("  Apparent Power: ");
-  Serial.print(totalApparentPower);
-  Serial.println(" VA");
-  Serial.print("  Reactive Power: ");
-  Serial.print(totalReactivePower);
-  Serial.println(" VAR");
-  Serial.print("  Power Factor: ");
-  Serial.print(abs(totalPF));
-  Serial.print(" (");
-  Serial.print(totalPFType);
-  Serial.println(")");
+  Serial.print("  Real Power: "); Serial.print(totalRealPower); Serial.println(" W");
+  Serial.print("  Apparent Power: "); Serial.print(totalApparentPower); Serial.println(" VA");
+  Serial.print("  Reactive Power: "); Serial.print(totalReactivePower); Serial.println(" VAR");
+  Serial.print("  Power Factor: "); Serial.print(abs(totalPowerFactor));
+  Serial.print(" ("); Serial.print(totalPowerFactorType); Serial.println(")");
+  Serial.println("");
 
-  // Prepare data for sending
-  // We will send:
-  // For each phase: Real (int), Apparent (int), Reactive (int), PF*1000 (signed int)
-  // Then total: Real, Apparent, Reactive, PF*1000 (signed)
-  // That's 4 registers per phase * 3 phases = 12 registers, plus 4 for total = 16 registers.
-  // Each register is 2 bytes. Total data bytes = 32.
-  // Make sure to scale and cast properly.
-
-  // Helper lambda to convert float to int16 scaled
-  auto toInt16 = [](float value) {
-    int val = (int)round(value);
-    if (val > 32767) val = 32767;
-    if (val < -32768) val = -32768;
-    return (int16_t)val;
-  };
-
-  auto toPFInt16 = [](float pf, String type) {
-    // pf is between -1 and 1
-    // If leading, we make pf negative, else positive
-    float scaledPF = abs(pf) * 1000.0;
-    if (type == "Leading") scaledPF = -scaledPF;
-    int val = (int)round(scaledPF);
-    if (val > 32767) val = 32767;
-    if (val < -32768) val = -32768;
-    return (int16_t)val;
-  };
-
-  // Construct response
-  // We'll mimic Modbus:
-  // Transaction ID: request[0..1]
-  // Protocol ID: request[2..3]
-  // Length: after we know how many bytes we'll send
-  // Unit ID: request[6]
-  // Function code: 0x03
-  // Byte count: 32 (16 registers * 2)
-  // Then the registers
-
+  // Sending Data via Ethernet
   EthernetClient client = server.available();
   if (client) {
     Serial.println("New client connected");
@@ -226,44 +150,53 @@ void loop() {
         byte request[12];
         client.read(request, sizeof(request));
 
-        // Prepare data array (32 data bytes + 9 header bytes)
-        // Total length = 9 (header) + 32 (data) = 41 bytes
-        byte response[41];
+        // We'll scale:
+        // Real Power, Apparent Power, Reactive Power by /10 before sending.
+        // PF *1000 as before.
+        // Lead/Lag: 1 or 0.
+
+        auto packPhaseData = [&](int16_t *arr, int startIndex, float rp, float ap, float rq, float pf, String pftype) {
+          int16_t realPowerInt     = (int16_t)(rp / 10.0);
+          int16_t apparentPowerInt = (int16_t)(ap / 10.0);
+          int16_t reactivePowerInt = (int16_t)(rq / 10.0);
+          int16_t pfInt            = (int16_t)(abs(pf) * 1000.0);
+          int16_t leadLagInt       = (pftype == "Leading") ? 1 : 0;
+
+          arr[startIndex]   = realPowerInt;
+          arr[startIndex+1] = apparentPowerInt;
+          arr[startIndex+2] = reactivePowerInt;
+          arr[startIndex+3] = pfInt;
+          arr[startIndex+4] = leadLagInt;
+        };
+
+        int16_t data[20];
+        // Phase A
+        packPhaseData(data, 0,  realPower[0], apparentPower[0], reactivePower[0], powerFactor[0], powerFactorType[0]);
+        // Phase B
+        packPhaseData(data, 5,  realPower[1], apparentPower[1], reactivePower[1], powerFactor[1], powerFactorType[1]);
+        // Phase C
+        packPhaseData(data, 10, realPower[2], apparentPower[2], reactivePower[2], powerFactor[2], powerFactorType[2]);
+        // Total
+        packPhaseData(data, 15, totalRealPower, totalApparentPower, totalReactivePower, totalPowerFactor, totalPowerFactorType);
+
+        // Modbus-like response framing
+        // 20 registers * 2 bytes = 40 bytes data
+        // Byte count = 40, plus function and unit ID, total length field
+        byte response[49];
         response[0] = request[0];
         response[1] = request[1];
-        response[2] = 0x00; // Protocol high
-        response[3] = 0x00; // Protocol low
-        response[4] = 0x00; // Length high
-        response[5] = 0x23; // Length low (35 decimal + 6 header = 41 total?)
-                           // Actually length field = number of bytes after this field: 
-                           // Unit ID (1) + Function(1) + ByteCount(1) + Data(32) = 35 bytes total after these two length bytes
-                           // So length should be 35 decimal = 0x23
+        response[2] = 0x00;
+        response[3] = 0x00;
+        response[4] = highByte(43); // 3 + 40 = 43 bytes after this header
+        response[5] = lowByte(43);
         response[6] = request[6]; // Unit ID
         response[7] = 0x03;       // Function code
-        response[8] = 32;         // Byte count (32 bytes of register data)
+        response[8] = 40;         // Byte count for 20 registers
 
-        // Fill registers
-        // Order: Phase1(Real,Apparent,Reactive,PF), Phase2(...), Phase3(...), Total(...)
-        int16_t regs[16];
-        int idx = 0;
-        for (int ph = 0; ph < 3; ph++) {
-          regs[idx++] = toInt16(realPower[ph]);
-          regs[idx++] = toInt16(apparentPower[ph]);
-          regs[idx++] = toInt16(reactivePower[ph]);
-          regs[idx++] = toPFInt16(powerFactor[ph], powerFactorType[ph]);
-        }
-
-        // Total
-        regs[idx++] = toInt16(totalRealPower);
-        regs[idx++] = toInt16(totalApparentPower);
-        regs[idx++] = toInt16(totalReactivePower);
-        regs[idx++] = toPFInt16(totalPF, totalPFType);
-
-        // Convert regs to response bytes
-        int byteIndex = 9;
-        for (int i = 0; i < 16; i++) {
-          response[byteIndex++] = highByte(regs[i]);
-          response[byteIndex++] = lowByte(regs[i]);
+        int pos = 9;
+        for (int i = 0; i < 20; i++) {
+          response[pos++] = highByte(data[i]);
+          response[pos++] = lowByte(data[i]);
         }
 
         client.write(response, sizeof(response));
